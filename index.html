@@ -3,16 +3,19 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css"> 
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body onload="startGame()">
     <canvas></canvas>
-    <script src="main_javascript.js"></script>
+
     <div style="text-align:center;width:480px;">
-
+        <button onmousedown="moveup()" onmouseup="stopMove()" ontouchstart="moveup()">UP</button>
+        <button onmousedown="movedown()" onmouseup="stopMove()" ontouchstart="movedown()">DOWN</button>
+        <button onmousedown="moveleft()" onmouseup="stopMove()" ontouchstart="moveleft()">LEFT</button>
+        <button onmousedown="moveright()" onmouseup="stopMove()" ontouchstart="moveright()">RIGHT</button>
     </div>
-
+    <script src="main_javascript.js"></script>
 </body>
 
 </html>
