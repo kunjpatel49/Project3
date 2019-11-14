@@ -1,69 +1,146 @@
-var myGamePiece;
-var gameObj;
 var canvas = document.querySelector("canvas");
-canvas.width = window.innerWidth - 200;
+canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-var c = canvas.getContext('2d');
-var cWidth = canvas.width;
-var cHeight = canvas.height;
-var objWidth = canvas.width;
-var objHeight = 0;
-var leftObjArray = [];
-var rightObjArray = [];
-var xVelocity = 0;
-var yVelocity = 0;
-myGamePiece = new component(30, 30, "red", cWidth / 2, cHeight / 2);
+var ctx = canvas.getContext('2d');
+var ballRadius = 10;
+var x = canvas.width / 2;
+var y = canvas.height - 30;
+var dx = 2;
+var dy = -2;
+var rightPressed = false;
+var leftPressed = false;
+var upPressed = false;
+var downPressed = false;
+var brickRowCount = 3;
+var brickColumnCount = 5;
+var brickWidth = 75;
+var brickHeight = 20;
+var brickPadding = 10;
+var brickOffsetTop = 30;
+var brickOffsetLeft = 30;
+var bricks = [];
+var score = 0;
+var level = 0;
 
-function component(width, height, color, x, y) {
-    this.width = width;
-    this.height = height;
+function drawScore() {
+    ctx.font = "16px Calibri";
+    ctx.fillStyle = "#0095DD";
+    ctx.fillText("Score: "+ score, 8, 20);
+    ctx.fillText("Level: "+ level, 8, 40);
+}
+
+function obstacle(x, y, dx, dy, status){
+    var brickX = Math.floor(Math.random() * window.innerWidth);
+    var brickY = 0;
     this.x = x;
     this.y = y;
-    c.fillStyle = color;
-    c.fillRect(this.x, this.y, this.width, this.height);
+    this.dx = dx;
+    this.dy = dy;
+    this.status = status;
+    
+    this.drawO = () =>{
+        ctx.beginPath();
+        
+        ctx.beginPath();
+        ctx.rect(this.x, this.y, brickWidth, brickHeight);
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.closePath();
+    }
+    
+    this.update = () =>{
+        if(this.x + x > window.innerWidth || this.y < 0){
+            console.log('if 1');
+           this.dx = -this.dx;
+           }
+        if(this.y + y > window.innerHeight || this.y < 0){
+           this.dy = -this.dy;
+            console.log('if 2');
+           }
+        this.x += this.dx;
+        this.y += this.dy;
+        this.drawO();
+    }
+    
 }
 
-function startGame() {
-    leftObjArray.push(new component(200, 10, "pink", 0, objHeight));
-    rightObjArray.push(new component(200, 10, "green", objWidth - 200, objHeight));
-}
-console.log(rightObjArray);
-// Buffer Control
-updateGameArea();
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
 
-function updateGameArea() {
-    requestAnimationFrame(updateGameArea);
-    c.clearRect(0, 0, canvas.width, canvas.height);
-    myGamePiece = new component(30, 30, "red", cWidth / 2, cHeight / 2);
-    startGame();
-    objHeight += 1; // Moving Obstacles thorugh the canvas
-    console.log("buffer");
+function keyDownHandler(e) {
+    if(e.key == "Right" || e.key == "ArrowRight") {
+        rightPressed = true;
+    } else if(e.key == "Left" || e.key == "ArrowLeft") {
+        leftPressed = true;
+    } else if(e.key == "Up" || e.key == "ArrowUp") {
+        upPressed = true;
+    } else if(e.key == "Down" || e.key == "ArrowDown") {
+        downPressed = true;
+    }
 }
 
-// Controls
-function moveup() {
-    yVelocity -= 1;
-    cHeight += yVelocity;
+function keyUpHandler(e) {
+    if(e.key == "Right" || e.key == "ArrowRight") {
+        rightPressed = false;
+    } else if(e.key == "Left" || e.key == "ArrowLeft") {
+        leftPressed = false;
+    } else if(e.key == "Up" || e.key == "ArrowUp") {
+        upPressed = false;
+    } else if(e.key == "Down" || e.key == "ArrowDown") {
+        downPressed = false;
+    }
 }
 
-function movedown() {
-    yVelocity += 1;
-    cHeight += yVelocity;
+function collisionDetection() {
+    for(var r = 0; r < brickRowCount; r++) {
+        var b = bricks[r];
+//         if(b.status == 1) {
+//             if(x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
+//                 console.log('collisionDetection');
+//                 b.status = 0;
+//             }
+//         }
+    }
 }
 
-function moveleft() {
-    xVelocity -= 1;
-    cWidth += xVelocity;
+function drawBall() {
+    ctx.beginPath();
+    ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+    ctx.fillStyle = "#0095DD";
+    ctx.fill();
+    ctx.closePath();
 }
 
-function moveright() {
-    xVelocity += 1;
-    cWidth += xVelocity;
+
+
+function moveBricks() {
+    for(var i = 0; i < bricks.lenght; i++) {
+        bricks[i].y += 1;
+        ctx.beginPath();
+        ctx.rect(bricks[i].x, bricks[i].y, brickWidth, brickHeight);
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.closePath();
+    }
+}
+var Obstacle = new obstacle(200,200,3,3,1);
+function draw(){
+   
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawBall();
+    drawScore();
+    Obstacle.update();
+    collisionDetection();
+    if(rightPressed) {
+        x += dx;
+    } else if(leftPressed) {
+        x -= dx;
+    } else if(upPressed) {
+        y += dy;
+    } else if(downPressed) {
+        y -= dy;
+    }
+
 }
 
-function stopMove() {
-    xVelocity = 0;
-    cWidth += xVelocity;
-    yVelocity = 0;
-    cHeight += yVelocity;
-}
+var interval = setInterval(draw, 10);
