@@ -1,69 +1,61 @@
 var canvas = document.querySelector("canvas");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas.width = screen.width;
+canvas.height = screen.height;
 var ctx = canvas.getContext('2d');
 var ballRadius = 10;
-var x = canvas.width / 2;
-var y = canvas.height - 30;
+var x = canvas.width/2;
+var y = canvas.height-50;
 var dx = 2;
 var dy = -2;
 var rightPressed = false;
 var leftPressed = false;
 var upPressed = false;
 var downPressed = false;
-var brickRowCount = 3;
-var brickColumnCount = 5;
 var brickWidth = 75;
 var brickHeight = 20;
-var brickPadding = 10;
-var brickOffsetTop = 30;
-var brickOffsetLeft = 30;
 var bricks = [];
 var score = 0;
 var level = 0;
+var lives = 3;
+window.addEventListener('resize', function() {
+  canvas.width = screen.width;
+canvas.height = screen.height;
+});
 
 function drawScore() {
     ctx.font = "16px Calibri";
     ctx.fillStyle = "#0095DD";
-    ctx.fillText("Score: "+ score, 8, 20);
-    ctx.fillText("Level: "+ level, 8, 40);
+    ctx.fillText("Score: " + score, 8, 20);
+    ctx.fillText("Level: " + level, 8, 40);
+    ctx.fillText("Lives: " + lives, 8, 60);
 }
 
-function obstacle(x, y, dx, dy, status){
-    var brickX = Math.floor(Math.random() * window.innerWidth);
-    var brickY = 0;
+function obstacle(x, y, dx, dy, status) {
     this.x = x;
     this.y = y;
     this.dx = dx;
     this.dy = dy;
     this.status = status;
-    
-    this.drawO = () =>{
+    this.drawO = () => {
         ctx.beginPath();
-        
         ctx.beginPath();
         ctx.rect(this.x, this.y, brickWidth, brickHeight);
         ctx.fillStyle = "#0095DD";
         ctx.fill();
         ctx.closePath();
     }
-    
-    this.update = () =>{
-        if(this.x + x > window.innerWidth || this.y < 0){
-            console.log('if 1');
-           this.dx = -this.dx;
-           }
-        if(this.y + y > window.innerHeight || this.y < 0){
-           this.dy = -this.dy;
-            console.log('if 2');
-           }
+    this.update = () => {
+        if(this.x + x > window.innerWidth || this.x < 0) {
+            this.dx = -this.dx;
+        }
+        if(this.y + y > window.innerHeight || this.y < 0) {
+            this.dy = -this.dy;
+        }
         this.x += this.dx;
         this.y += this.dy;
         this.drawO();
     }
-    
 }
-
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
 
@@ -90,18 +82,23 @@ function keyUpHandler(e) {
         downPressed = false;
     }
 }
-
+var crashed = false;
 function collisionDetection() {
-    for(var r = 0; r < brickRowCount; r++) {
+    for(var r = 0; r < bricks.length; r++) {
         var b = bricks[r];
-//         if(b.status == 1) {
-//             if(x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
-//                 console.log('collisionDetection');
-//                 b.status = 0;
-//             }
-//         }
+        if(b.status == 1) {
+            if(x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
+                console.log('collisionDetection');
+                crashed = true;
+                lives--;
+                b.status=0;
+            }
+        }
     }
 }
+if(crashed == true){
+       lives--;
+       }
 
 function drawBall() {
     ctx.beginPath();
@@ -111,25 +108,20 @@ function drawBall() {
     ctx.closePath();
 }
 
-
-
-function moveBricks() {
-    for(var i = 0; i < bricks.lenght; i++) {
-        bricks[i].y += 1;
-        ctx.beginPath();
-        ctx.rect(bricks[i].x, bricks[i].y, brickWidth, brickHeight);
-        ctx.fillStyle = "#0095DD";
-        ctx.fill();
-        ctx.closePath();
-    }
+for(let i = 0; i < 3; i++) {
+    var harmObjectX = 200;
+    var harmObjectY = Math.random() * canvas.height;
+    var harmObjectDX = (Math.random() - 0.5) * 8;
+    var harmObjectDY = (Math.random() - 0.5) * 8;
+    bricks.push(new obstacle(harmObjectX, harmObjectX, harmObjectDX, harmObjectDY, 1));
+    console.log(canvas.width);
+    console.log("X: " + harmObjectX + " Y: " + harmObjectY);
 }
-var Obstacle = new obstacle(200,200,3,3,1);
-function draw(){
-   
+
+function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBall();
     drawScore();
-    Obstacle.update();
     collisionDetection();
     if(rightPressed) {
         x += dx;
@@ -140,7 +132,15 @@ function draw(){
     } else if(downPressed) {
         y -= dy;
     }
-
+    for(let i = 0; i < bricks.length; i++) {
+        bricks[i].update();
+    }
+    if(lives <= 0){
+   alert("Game Over");
+        clearInterval(interval);
+   }
 }
+
+
 
 var interval = setInterval(draw, 10);
