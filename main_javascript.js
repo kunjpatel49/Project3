@@ -3,9 +3,9 @@ canvas.width = screen.width;
 canvas.height =  screen.height;
 console.log(canvas.width);
 var ctx = canvas.getContext('2d');
-var ballRadius = 10;
-var x = canvas.width/2;
-var y = canvas.height-50;
+var ballRadius = 20;
+var x = 40;
+var y = canvas.height/2;
 var dx = 2;
 var dy = -2;
 var rightPressed = false;
@@ -48,10 +48,10 @@ function obstacle(x, y, dx, dy, status, color) {
         ctx.closePath();
     }
     this.update = () => {
-        if(this.x  > window.innerWidth || this.x < 0) {
+        if(this.x  > window.innerWidth ) {
             this.dx = -this.dx;
         }
-        if(this.y  > window.innerHeight || this.y < 0) {
+        if(this.y  > window.innerHeight) {
             this.dy = -this.dy;
         }
         this.x += this.dx;
@@ -87,8 +87,11 @@ function keyUpHandler(e) {
 }
 var crashed = false;
 var bonusObjCrashed = false;
-
-function collisionDetection() {
+var ar = [];
+for(var i = 0; i<4;i++){
+    ar[i] = Math.random()*canvas.height
+}
+function collisionDetection(){
     for(var r = 0; r < bricks.length; r++) {
         var b = bricks[r];
         if(b.status == 1) {
@@ -114,7 +117,7 @@ function collisionDetection() {
 function drawBall() {
     ctx.beginPath();
     ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-    ctx.fillStyle = "#0095DD";
+    ctx.fillStyle = "#FFD412";
     ctx.fill();
     ctx.closePath();
 }
@@ -130,8 +133,8 @@ function drawBall() {
          for(var u = 0; u < maxLevel; u++) {
              var harmObjectX = canvas.width;
              var harmObjectY = Math.random() * canvas.height;
-             var harmObjectDX = -(Math.random() - 0.5 * 8);
-             var harmObjectDY = -(Math.random() - 0.5 * 8);
+             var harmObjectDX = -9;
+             var harmObjectDY = 0;
              bricks.push(new obstacle(harmObjectX, harmObjectX, harmObjectDX, harmObjectDY, 1, "#0095DD"));
          }
      //===============================================================================================================================
@@ -139,16 +142,31 @@ function drawBall() {
          for(let i = 0; i < maxLevel+1; i++) {
              var bonusObjectX = canvas.width;
              var bonusObjectY = Math.random() * canvas.height;
-             var bonusObjectDX = -(Math.random() - 0.5 * 8);
-             var bonusObjectDY = -(Math.random() - 0.5 * 8);
-             bonusObj.push(new obstacle(bonusObjectX, bonusObjectY, bonusObjectDX, bonusObjectDY, 1, "green"));
+             var bonusObjectDX = -8;
+             var bonusObjectDY = 0;
+             bonusObj.push(new obstacle(bonusObjectX, bonusObjectY, bonusObjectDX, bonusObjectDY, 1, "#BF1836"));
          }
      }
      levelUp = false;
  }
-    init(1);
+console.log(ar);
 // ==============================================================================================================================
-
+function createObstacle(){
+     for(let i = 0; i <4; i++) {
+             var bonusObjectX = canvas.width;
+             var bonusObjectY = Math.random() * canvas.height;
+             var bonusObjectDX = -8;
+             var bonusObjectDY = 0;
+             bonusObj.push(new obstacle(bonusObjectX, bonusObjectY, bonusObjectDX, bonusObjectDY, 1,"#0095DD"));
+     }
+    for(var u = 0; u < 4; u++) {
+             var harmObjectX = canvas.width;
+             var harmObjectY = ar[i];
+             var harmObjectDX = -9;
+             var harmObjectDY = 0;
+             bricks.push(new obstacle(harmObjectX, harmObjectX, harmObjectDX, harmObjectDY, 1, "#BF1836"));
+    }
+}
 
 
 
@@ -156,6 +174,7 @@ function drawBall() {
 var speedIncreasedLvL2 = true;
 var speedIncreasedLvL3 = true;
 function draw() {
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBall();
     drawScore();
@@ -239,5 +258,5 @@ function draw() {
 }
 // ==============================================================================================================================
 
-
+var RegID = setInterval(createObstacle,1000);
 var interval = setInterval(draw, 10);
